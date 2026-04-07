@@ -31,9 +31,14 @@ const connectDB = async () => {
       maxPoolSize: 10,
       minPoolSize: 5
     });
-    console.log('Connected to MongoDB');
+    // Drop stale indexes that no longer exist in the schema
+    try {
+      const BanquetBooking = require('./model.planLimit/PlanLimit/banquetBooking');
+      await BanquetBooking.collection.dropIndex('grcNo_1');
+    } catch (e) {
+      // Index doesn't exist or already dropped — safe to ignore
+    }
   } catch (err) {
-    console.error('MongoDB connection error:', err);
     process.exit(1);
   }
 };
@@ -66,7 +71,6 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
   });
 };
 

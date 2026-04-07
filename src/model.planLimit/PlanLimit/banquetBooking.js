@@ -16,7 +16,7 @@ const bookingSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now },
       method: { 
         type: String, 
-        enum: ["cash", "card", "upi", "wallet", "other"], 
+        enum: ["cash", "card", "upi", "wallet", "cheque", "other"], 
         default: "cash" 
       },
       remarks: String
@@ -27,7 +27,7 @@ const bookingSchema = new mongoose.Schema({
   ratePerPax: { type: Number }, // Rate per person
   paymentMethod: {
   type: String,
-  enum: ["cash", "online", "card"],
+  enum: ["cash", "online", "card", "cheque"],
   default: "cash"
 },
 transactionId: {
@@ -39,7 +39,7 @@ transactionId: {
   musicCharge: { type: Number, default: 0 },
   hall:{
     type: String,
-    enum: ["Lawn", "Banquet Hall", "Lawn + Banquet Hall", "Rooftop Hall"], 
+    enum: ["Nirvana", "Mandala", "Mandala and Nirvana", "Room Side Terrace"], 
   },
   extraRooms: { type: Number, default: 0 },
 roomPricePerUnit: { type: Number, default: 0 },

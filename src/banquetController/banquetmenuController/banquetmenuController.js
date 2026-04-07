@@ -45,7 +45,6 @@ exports.getMenuByCustomerRef = async (req, res) => {
         booking
       });
   } catch (err) {
-    console.error("Error fetching menu by customerRef:", err.message);
     res.status(500).json({
       message: "Server error",
       error: err.message,
@@ -66,7 +65,6 @@ exports.getMenuByBookingId = async (req, res) => {
 
     res.status(200).json({ success: true, data: menu });
   } catch (error) {
-    console.error("Error fetching menu by booking ID:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -130,7 +128,6 @@ exports.updateMenuByCustomerRef = async (req, res) => {
       menu,
     });
   } catch (err) {
-    console.error("Menu update error:", err.message);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

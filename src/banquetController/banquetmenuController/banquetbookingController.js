@@ -48,7 +48,6 @@ exports.createBooking = async (req, res) => {
 
     // Create booking
     const booking = await BanquetBooking.create(bookingData);
-    console.log("Booking created:", booking);
 
     // Handle categorizedMenu
     if (req.body.categorizedMenu) {
@@ -58,7 +57,6 @@ exports.createBooking = async (req, res) => {
         customerRef: customerRef
       });
       await menu.save();
-      console.log("Menu created with bookingRef:", booking._id);
     }
 
     res.status(201).json({ message: "Success", booking });
@@ -84,7 +82,6 @@ exports.getBookings = async (req, res) => {
       .lean();
     res.status(200).json(bookings);
   } catch (err) {
-    console.error("Error fetching bookings:", err.message);
     res.status(500).json({
       message: "Server error while fetching bookings",
       error: err.message,
@@ -105,15 +102,12 @@ exports.getBookingById = async (req, res) => {
     const menu = await Menu.findOne({ bookingRef: req.params.id });
 
     // Debug log
-    console.log("Booking:", booking);
-    console.log("Menu (categorizedMenu):", menu);
 
     res.status(200).json({
       ...booking.toObject(),
       categorizedMenu: menu ? menu.toObject() : null
     });
   } catch (err) {
-    console.error("Error fetching booking:", err.message);
     res.status(500).json({
       message: "Server error while fetching booking",
       error: err.message,
@@ -250,7 +244,6 @@ exports.updateBooking = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error updating booking:", err.message);
     res.status(500).json({
       message: "Server error while updating booking",
       error: err.message,
@@ -272,7 +265,6 @@ exports.deleteBooking = async (req, res) => {
       message: "Booking deleted successfully",
     });
   } catch (err) {
-    console.error("Error deleting booking:", err.message);
     res.status(500).json({
       message: "Server error while deleting booking",
       error: err.message,
@@ -308,7 +300,6 @@ exports.getAllPagination = async (req, res) => {
       limit,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -338,7 +329,6 @@ exports.searchBooking = async (req, res) => {
 
     res.status(200).json({ data: bookings, success: true });
   } catch (error) {
-    console.error("Search error:", error);
     res.status(500).json({ message: "Server error", success: false });
   }
 };
