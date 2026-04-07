@@ -7,16 +7,25 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    "http://localhost:4000",
-    "http://localhost:5173",
-    "https://buddha-banquet-b.vercel.app",
-    "https://buddha-banquet-f.vercel.app"
-    
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  origin: function(origin, callback) {
+    const allowed = [
+      "http://localhost:4000",
+      "http://localhost:5173",
+      "https://buddha-banquet-b.vercel.app",
+      "https://buddha-banquet-f.vercel.app"
+    ];
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in production
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
+app.options('*', cors()); // Handle preflight requests
 app.use(express.json());
 
 // Disable mongoose buffering
@@ -39,6 +48,7 @@ const connectDB = async () => {
       // Index doesn't exist or already dropped — safe to ignore
     }
   } catch (err) {
+    console.error('MongoDB connection error:', err.message);
     process.exit(1);
   }
 };
