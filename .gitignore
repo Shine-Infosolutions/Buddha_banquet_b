@@ -3,8 +3,6 @@ node_modules/
 npm-debug.log*
 
 # Environment variables
-.env
-src/.env
 
 # Logs
 *.log
@@ -33,11 +31,7 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 # Vercel
 .vercel
