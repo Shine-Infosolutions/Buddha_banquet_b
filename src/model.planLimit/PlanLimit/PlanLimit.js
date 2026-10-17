@@ -4,7 +4,7 @@ const planLimitSchema = new mongoose.Schema({
   ratePlan: {
     type: String,
     required: true,
-    enum: ["Silver", "Gold", "Platinum"]
+    enum: ["Silver", "Gold", "Platinum", "Normal Lunch", "Normal Dinner", "Hi-Tea"]
   },
   foodType: {
     type: String,
