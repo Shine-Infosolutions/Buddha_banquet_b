@@ -62,12 +62,12 @@ foodType: {
 },
 functionType: {
 type: String,
-enum: ["Ring ceremony", "Wedding", "Tilak","Birthday","Anniversary","Mundan","Sangeet + Mehndi","Corporate meeting","Haldi function" ,"Farewell"],
+enum: ["Ring ceremony", "Wedding", "Tilak","Birthday","Anniversary","Mundan","Sangeet + Mehndi","Corporate meeting","Haldi function" ,"Farewell","Normal Lunch","Normal Dinner","Hi-Tea"],
 default:"Wedding",
 },
 bookingStatus: {
   type: String,
-  enum: ["Tentative", "Confirmed", "Enquiry"], 
+  enum: ["Tentative", "Confirmed", "Enquiry", "Cancelled"],
   default: "Tentative",
 },
   notes: { type: String, trim: true },

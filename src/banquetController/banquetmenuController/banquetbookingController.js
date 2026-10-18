@@ -1,4 +1,4 @@
-const BanquetBooking = require("../../model.planLimit/PlanLimit/banquetBooking");
+﻿const BanquetBooking = require("../../model.planLimit/PlanLimit/banquetBooking");
 const Menu = require("../../model.planLimit/PlanLimit/BanquetMenu");
 const generateCustomerRef = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -8,6 +8,17 @@ const generateCustomerRef = () => {
   }
   return ref;
 };
+// Parse a date string (YYYY-MM-DD or ISO) as UTC midnight to avoid timezone shift
+const parseUTCDate = (dateInput) => {
+  if (!dateInput) return null;
+  const datePart = String(dateInput).split('T')[0];
+  const parts = datePart.split('-');
+  if (parts.length !== 3) return new Date(dateInput);
+  const [year, month, day] = parts.map(Number);
+  if (!year || !month || !day) return new Date(dateInput);
+  return new Date(Date.UTC(year, month - 1, day));
+};
+
 exports.createBooking = async (req, res) => {
   try {
     // Generate unique customerRef
@@ -31,11 +42,16 @@ exports.createBooking = async (req, res) => {
       if (bookingData[f]) bookingData[f] = Number(bookingData[f]);
     });
 
-    // ✅ Handle advance array properly
+    // âœ… Handle advance array properly
+    // Normalize startDate to UTC midnight to prevent timezone shift
+    if (bookingData.startDate) {
+      bookingData.startDate = parseUTCDate(bookingData.startDate);
+    }
+
     if (Array.isArray(bookingData.advance)) {
       bookingData.advance = bookingData.advance.map(a => ({
         amount: Number(a.amount) || 0,
-        date: a.date ? new Date(a.date) : new Date(),
+        date: a.date ? parseUTCDate(a.date) : new Date(),
         method: a.method || "cash",
         remarks: a.remarks || "",
       }));
@@ -156,29 +172,34 @@ exports.updateBooking = async (req, res) => {
   try {
     const updatedData = { ...req.body };
 
-    // 1️⃣ Find existing booking
+    // Normalize startDate to UTC midnight to prevent timezone shift
+    if (updatedData.startDate) {
+      updatedData.startDate = parseUTCDate(updatedData.startDate);
+    }
+
+    // 1ï¸âƒ£ Find existing booking
     const booking = await BanquetBooking.findById(req.params.id);
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // 2️⃣ Handle advance array
+    // 2ï¸âƒ£ Handle advance array
     if (Array.isArray(updatedData.advance) && updatedData.advance.length > 0) {
       const newAdvances = updatedData.advance.map(a => ({
         amount: Number(a.amount) || 0,
-        date: a.date ? new Date(a.date) : new Date(),
+        date: a.date ? parseUTCDate(a.date) : new Date(),
         method: a.method || "cash",
         remarks: a.remarks || "",
       }));
       booking.advance = [...(booking.advance || []), ...newAdvances];
     }
 
-    // 3️⃣ Recalculate totalAdvance + balance
+    // 3ï¸âƒ£ Recalculate totalAdvance + balance
     const totalAdvance = (booking.advance || []).reduce((sum, a) => sum + (a.amount || 0), 0);
     if (updatedData.total) booking.total = Number(updatedData.total);
     booking.balance = (booking.total || 0) - totalAdvance;
 
-    // 4️⃣ Append to statusHistory
+    // 4ï¸âƒ£ Append to statusHistory
     if (Array.isArray(updatedData.statusHistory) && updatedData.statusHistory.length > 0) {
       updatedData.statusHistory.forEach(newEntry => {
         const exists = booking.statusHistory.some(
@@ -191,11 +212,11 @@ exports.updateBooking = async (req, res) => {
       delete updatedData.statusHistory;
     }
 
-    // 5️⃣ Assign other fields including mealPlan
+    // 5ï¸âƒ£ Assign other fields including mealPlan
     const ignoredFields = ["advance", "total"];
     Object.keys(updatedData).forEach(key => {
       if (!ignoredFields.includes(key)) {
-        // ✅ Special handling for mealPlan to validate enum
+        // âœ… Special handling for mealPlan to validate enum
         if (key === "mealPlan") {
           const validOptions = ["With Breakfast", "Without Breakfast"];
           booking.mealPlan = validOptions.includes(updatedData.mealPlan)
@@ -207,7 +228,7 @@ exports.updateBooking = async (req, res) => {
       }
     });
 
-    // 6️⃣ STAFF MENU EDIT LIMIT LOGIC
+    // 6ï¸âƒ£ STAFF MENU EDIT LIMIT LOGIC
     const role = (req.body.role || req.body.rolr || "staff").toLowerCase();
     if (role !== "admin" && req.body.categorizedMenu) {
       if (typeof booking.staffEditCount !== "number") booking.staffEditCount = 0;
@@ -217,10 +238,10 @@ exports.updateBooking = async (req, res) => {
       booking.staffEditCount += 1;
     }
 
-    // 7️⃣ Save the booking
+    // 7ï¸âƒ£ Save the booking
     await booking.save();
 
-    // 8️⃣ MENU UPDATE LOGIC
+    // 8ï¸âƒ£ MENU UPDATE LOGIC
     if (updatedData.categorizedMenu && booking.customerRef) {
       let menu = await Menu.findOne({ bookingRef: booking._id });
       if (menu) {
@@ -237,7 +258,7 @@ exports.updateBooking = async (req, res) => {
       }
     }
 
-    // ✅ Response
+    // âœ… Response
     res.status(200).json({
       message: "Booking and Menu updated successfully",
       booking,
@@ -332,3 +353,5 @@ exports.searchBooking = async (req, res) => {
     res.status(500).json({ message: "Server error", success: false });
   }
 };
+
+
